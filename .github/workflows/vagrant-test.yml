@@ -23,9 +23,9 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
 
-          vagrant up vm1 --no-color --provision
-          vagrant up vm2 --no-color --provision
-          vagrant up vm3 --no-color --provision
+          vagrant up vm1-test --no-color --provision
+          vagrant up vm2-test --no-color --provision
+          vagrant up vm3-test --no-color --provision
 
 
       - name: Health check
