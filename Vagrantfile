@@ -111,10 +111,14 @@ Vagrant.configure("2") do |config|
             ( crontab -l -u vagrant 2>/dev/null | grep -Fv "$cron_line"; echo "$cron_line" ) | crontab -u vagrant -
 
             # Переходим в нужную директорию и создаем volume для контейнеров
-            cd /vagrant/monitor && docker volume create zabbix_grafana_data && docker volume create zabbix_patroni1_data && docker volume create zabbix_patroni2_data
+            cd /vagrant/monitor/zabbix/zabbix-data
+            
+            docker volume create zabbix_grafana_data
+            docker volume create zabbix_patroni1_data
+            docker volume create zabbix_patroni2_data
             
             # Grafana data
-            cd zabbix-data && docker run --rm -v zabbix_grafana_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_grafana_data.tar.gz"
+            docker run --rm -v zabbix_grafana_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_grafana_data.tar.gz"
 
             # Patroni1 data
             docker run --rm -v zabbix_patroni1_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_patroni1_data.tar.gz"
@@ -123,6 +127,7 @@ Vagrant.configure("2") do |config|
             docker run --rm -v zabbix_patroni2_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_patroni2_data.tar.gz"
 
             # Запускаем контейнеры
+            cd /vagrant/monitor/zabbix
             docker compose up -d --build
 
         SHELL
