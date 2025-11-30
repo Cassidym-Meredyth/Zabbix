@@ -125,7 +125,6 @@ Vagrant.configure("2") do |config|
             # Запускаем контейнеры
             docker compose up -d --build
 
-
         SHELL
     end
 
