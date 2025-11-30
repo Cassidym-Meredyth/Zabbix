@@ -41,20 +41,20 @@ Vagrant.configure("2") do |config|
 
     # VM1 (Docker/Compose + Zabbix)
     config.vm.define "vm1" do |vm10|
-        vm1.vm.hostname = "monitoring"
-        vm1.vm.network "private_network", ip: "192.168.20.10"
-        vm1.vm.provider "virtualbox" do |vb|
+        vm10.vm.hostname = "monitoring"
+        vm10.vm.network "private_network", ip: "192.168.20.10"
+        vm10.vm.provider "virtualbox" do |vb|
             vb.name = "VM1-monitor"
             vb.memory = 4096
             vb.cpus = 2
         end
 
-        vm1.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
-        vm1.vm.network "forwarded_port", guest: 8080, host: 8180, auto_correct: true
+        vm10.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
+        vm10.vm.network "forwarded_port", guest: 8080, host: 8180, auto_correct: true
 
-        vm1.vm.provision "shell", inline: common_bootstrap
+        vm10.vm.provision "shell", inline: common_bootstrap
 
-        vm1.vm.provision "shell", inline: <<-SHELL
+        vm10.vm.provision "shell", inline: <<-SHELL
             files="/vagrant/.ssh-host2.pub /vagrant/.ssh-host3.pub /vagrant/.ssh-monitoring.pub"
             deadline=$((SECONDS+300))
             echo "=== Ожидаем ключи: $files ==="
@@ -128,17 +128,17 @@ Vagrant.configure("2") do |config|
 
     # VM2 (Zabbix agent)
     config.vm.define "vm2" do |vm20|
-        vm2.vm.hostname = "host2"
-        vm2.vm.network "private_network", ip: "192.168.20.20"
-        vm2.vm.provider "virtualbox" do |vb|
+        vm20.vm.hostname = "host2"
+        vm20.vm.network "private_network", ip: "192.168.20.20"
+        vm20.vm.provider "virtualbox" do |vb|
             vb.name = "VM2-host2"
             vb.memory = 2048
             vb.cpus = 2
         end
 
-        vm2.vm.provision "shell", inline: common_bootstrap
+        vm20.vm.provision "shell", inline: common_bootstrap
 
-        vm2.vm.provision "shell", inline: <<-SHELL
+        vm20.vm.provision "shell", inline: <<-SHELL
             sudo apt-get install -y htop net-tools
             # Подтянуть общий authorized_keys, если он уже собран VM1
             if [ -f /vagrant/.ssh-cluster-authorized_keys ]; then
@@ -180,17 +180,17 @@ Vagrant.configure("2") do |config|
 
     # VM3 (Zabbix agent)
     config.vm.define "vm3" do |vm30|
-        vm3.vm.hostname = "host3"
-        vm3.vm.network "private_network", ip: "192.168.20.30"
-        vm3.vm.provider "virtualbox" do |vb|
+        vm30.vm.hostname = "host3"
+        vm30.vm.network "private_network", ip: "192.168.20.30"
+        vm30.vm.provider "virtualbox" do |vb|
             vb.name = "VM3-host3"
             vb.memory = 2048
             vb.cpus = 2
         end
 
-        vm3.vm.provision "shell", inline: common_bootstrap
+        vm30.vm.provision "shell", inline: common_bootstrap
 
-        vm3.vm.provision "shell", inline: <<-SHELL
+        vm30.vm.provision "shell", inline: <<-SHELL
             sudo apt-get install -y htop net-tools
             # Подтянуть общий authorized_keys, если он уже собран VM1
             if [ -f /vagrant/.ssh-cluster-authorized_keys ]; then
