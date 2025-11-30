@@ -104,17 +104,17 @@ Vagrant.configure("2") do |config|
             fi
 
             # Перемещаем 99-forward-tls.conf в rsyslog.d
-            copy /vagrant/monitor/99-forward-tls.conf /etc/rsyslog.d/99-forward-tml.conf
+            cp /vagrant/monitor/99-forward-tls.conf /etc/rsyslog.d/99-forward-tml.conf
 
             # Пишем cron и делаем проверку, если уже создан
             cron_line="*/1 * * * * sh /vagrant/monitor/zabbix/curl_fail500.sh >/dev/null 2>&1"
             ( crontab -l -u vagrant 2>/dev/null | grep -Fv "$cron_line"; echo "$cron_line" ) | crontab -u vagrant -
 
             # Переходим в нужную директорию и создаем volume для контейнеров
-            cd /vagrant/host2 && docker volume create zabbix_grafana_data && docker volume create zabbix_patroni1_data && docker volume create zabbix_patroni2_data
+            cd /vagrant/monitor && docker volume create zabbix_grafana_data && docker volume create zabbix_patroni1_data && docker volume create zabbix_patroni2_data
             
             # Grafana data
-            cd ~/zabbix-data && docker run --rm -v zabbix_grafana_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_grafana_data.tar.gz"
+            cd zabbix-data && docker run --rm -v zabbix_grafana_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_grafana_data.tar.gz"
 
             # Patroni1 data
             docker run --rm -v zabbix_patroni1_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_patroni1_data.tar.gz"
@@ -174,7 +174,7 @@ Vagrant.configure("2") do |config|
             192.168.20.30 host3'
 
             # Перемещаем 99-forward-tls.conf в rsyslog.d
-            copy /vagrant/host2/99-forward-tls.conf /etc/rsyslog.d/99-forward-tml.conf
+            cp /vagrant/host2/99-forward-tls.conf /etc/rsyslog.d/99-forward-tml.conf
 
             # Запускаем контейнеры
             docker compose up -d --build
@@ -226,7 +226,7 @@ Vagrant.configure("2") do |config|
             192.168.20.30 host3'
 
             # Перемещаем 99-forward-tls.conf в rsyslog.d
-            copy /vagrant/host3/99-forward-tls.conf /etc/rsyslog.d/99-forward-tml.conf
+            cp /vagrant/host3/99-forward-tls.conf /etc/rsyslog.d/99-forward-tml.conf
 
             # Запускаем контейнеры
             cd /vagrant/host3 && docker compose up -d --build
