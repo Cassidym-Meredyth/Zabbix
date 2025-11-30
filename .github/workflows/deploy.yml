@@ -2,7 +2,7 @@ name: Deploy Zabbix infra
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   deploy:
