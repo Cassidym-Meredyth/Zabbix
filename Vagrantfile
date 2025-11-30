@@ -56,14 +56,17 @@ Vagrant.configure("2") do |config|
 
         vm1.vm.provision "shell", inline: <<-SHELL
             files="/vagrant/.ssh-host2.pub /vagrant/.ssh-host3.pub /vagrant/.ssh-monitoring.pub"
-            deadline=$((SECONDS+300))
-            echo "=== Ожидаем ключи: $files ==="
+            deadline=$((SECONDS+60))
+
+            echo "=== Ожидаем ключи (макс 60 cек): $files ==="
             for f in $files; do
                 while [ ! -f "$f" ] && [ $SECONDS -lt $deadline ]; do
-                    echo "  - ждём $f ..."
-                    sleep 2
+                echo "  - ждём $f ..."
+                sleep 2
                 done
-                [ -f "$f" ] || echo "WARN: нет $f — продолжим без него"
+                if [ ! -f "$f" ]; then
+                echo "WARN: нет $f — идём дальше без него"
+                fi
             done
 
             echo "=== Собираем общий authorized_keys ==="
