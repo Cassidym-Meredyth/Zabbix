@@ -27,7 +27,14 @@ jobs:
           vagrant up vm2-test --no-color --provision
           vagrant up vm3-test --no-color --provision
 
-
       - name: Health check
         run: |
           vagrant ssh vm1-test -c "docker ps"
+
+      - name: Destroy VMs after job
+        if: always()
+        run: |
+          vagrant destroy -f
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "final destroy failed, ignore"
+          }
