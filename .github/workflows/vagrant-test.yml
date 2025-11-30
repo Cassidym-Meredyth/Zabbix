@@ -16,13 +16,11 @@ jobs:
         run: vagrant destroy -f
 
       - name: Vagrant up (test)
-        shell: bash
         run: |
           set -e
           vagrant up --no-color --provision
 
       - name: Health check
-        shell: bash
         run: |
           vagrant ssh vm1 -c "docker ps"
 
