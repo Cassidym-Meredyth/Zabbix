@@ -13,8 +13,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Destroy old VMs
-        shell: bash
-        run: vagrant destroy -f || true
+        run: vagrant destroy -f
 
       - name: Vagrant up (test)
         shell: bash
