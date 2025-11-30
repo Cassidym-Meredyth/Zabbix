@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
     SHELL
 
     # VM1 (Docker/Compose + Zabbix)
-    config.vm.define "vm1" do |vm1|
+    config.vm.define "vm1-test" do |vm1|
         vm1.vm.hostname = "monitoring"
         vm1.vm.network "private_network", ip: "192.168.20.10"
         vm1.vm.provider "virtualbox" do |vb|
@@ -130,7 +130,7 @@ Vagrant.configure("2") do |config|
     end
 
     # VM2 (Zabbix agent)
-    config.vm.define "vm2" do |vm2|
+    config.vm.define "vm2-test" do |vm2|
         vm2.vm.hostname = "host2"
         vm2.vm.network "private_network", ip: "192.168.20.20"
         vm2.vm.provider "virtualbox" do |vb|
@@ -182,7 +182,7 @@ Vagrant.configure("2") do |config|
     end
 
     # VM3 (Zabbix agent)
-    config.vm.define "vm3" do |vm3|
+    config.vm.define "vm3-test" do |vm3|
         vm3.vm.hostname = "host3"
         vm3.vm.network "private_network", ip: "192.168.20.30"
         vm3.vm.provider "virtualbox" do |vb|

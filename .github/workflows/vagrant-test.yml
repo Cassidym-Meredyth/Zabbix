@@ -22,7 +22,11 @@ jobs:
       - name: Vagrant up (test)
         run: |
           $ErrorActionPreference = "Stop"
-          vagrant up --no-color --provision
+
+          vagrant up vm1 --no-color --provision
+          vagrant up vm2 --no-color --provision
+          vagrant up vm3 --no-color --provision
+
 
       - name: Health check
         run: |
