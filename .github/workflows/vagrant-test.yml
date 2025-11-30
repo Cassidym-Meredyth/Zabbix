@@ -1,0 +1,25 @@
+name: Test Vagrant infra
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+
+jobs:
+  vagrant-test:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Destroy old VMs
+        run: vagrant destroy -f || true
+
+      - name: Vagrant up (test)
+        run: |
+          set -e
+          vagrant up --no-color --provision
+
+      - name: Health check
+        run: |
+          vagrant ssh vm1 -c "docker ps"
