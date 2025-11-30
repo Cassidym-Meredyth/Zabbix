@@ -6,6 +6,8 @@
 Vagrant.configure("2") do |config|
     config.vm.box = "ubuntu/jammy64"
     config.vm.boot_timeout = 600
+    config.vm.synced_folder ".", "/vagrant", disabled: false
+
 
     common_bootstrap = <<-SHELL
         echo "=== Обновление и установка пакетов ==="
