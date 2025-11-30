@@ -1,0 +1,248 @@
+services:
+  # ====== DCS (etcd) ======
+  etcd1:
+    image: quay.io/coreos/etcd:v3.5.15
+    container_name: etcd1
+    command: >
+      /usr/local/bin/etcd
+      --name=etcd1
+      --data-dir=/etcd-data
+      --initial-advertise-peer-urls=http://etcd1:2380
+      --listen-peer-urls=http://0.0.0.0:2380
+      --listen-client-urls=http://0.0.0.0:2379
+      --advertise-client-urls=http://etcd1:2379
+      --initial-cluster-token=etcd-cluster-1
+      --initial-cluster=etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+      --initial-cluster-state=new
+      --enable-v2=true
+    networks:
+      zbx-net:
+        ipv4_address: 172.20.0.11
+    restart: unless-stopped
+
+  etcd2:
+    image: quay.io/coreos/etcd:v3.5.15
+    container_name: etcd2
+    command: >
+      /usr/local/bin/etcd
+      --name=etcd2
+      --data-dir=/etcd-data
+      --initial-advertise-peer-urls=http://etcd2:2380
+      --listen-peer-urls=http://0.0.0.0:2380
+      --listen-client-urls=http://0.0.0.0:2379
+      --advertise-client-urls=http://etcd2:2379
+      --initial-cluster-token=etcd-cluster-1
+      --initial-cluster=etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+      --initial-cluster-state=new
+      --enable-v2=true
+    networks:
+      zbx-net:
+        ipv4_address: 172.20.0.12
+    restart: unless-stopped
+
+  etcd3:
+    image: quay.io/coreos/etcd:v3.5.15
+    container_name: etcd3
+    command: >
+      /usr/local/bin/etcd
+      --name=etcd3
+      --data-dir=/etcd-data
+      --initial-advertise-peer-urls=http://etcd3:2380
+      --listen-peer-urls=http://0.0.0.0:2380
+      --listen-client-urls=http://0.0.0.0:2379
+      --advertise-client-urls=http://etcd3:2379
+      --initial-cluster-token=etcd-cluster-1
+      --initial-cluster=etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+      --initial-cluster-state=new
+      --enable-v2=true
+    networks:
+      zbx-net:
+        ipv4_address: 172.20.0.13
+    restart: unless-stopped
+
+  # ====== Patroni + PostgreSQL ======
+  patroni1:
+    image: ghcr.io/batonogov/patroni-docker:v4.0.4-pg17.3
+    container_name: patroni1
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    environment:
+      PATRONI_NAME: patroni1
+      PATRONI_SCOPE: zbx-cluster
+      PATRONI_ETCD_HOSTS: etcd1:2379,etcd2:2379,etcd3:2379
+      REPLICATION_NAME: replicator
+      REPLICATION_PASS: replpass
+      SU_NAME: postgres
+      SU_PASS: supass
+      POSTGRES_APP_ROLE_PASS: appass
+      PATRONI_API_CONNECT_PORT: 8008
+    volumes:
+      - patroni1_data:/var/lib/postgresql/patroni/main
+      - ./patroni/patroni.yml:/patroni.yml:ro
+      - ./patroni/entrypoint.sh:/entrypoint.sh:ro
+    networks:
+      zbx-net:
+        ipv4_address: 172.20.0.14
+    depends_on:
+      - etcd1
+      - etcd2
+      - etcd3
+    restart: unless-stopped
+
+  patroni2:
+    image: ghcr.io/batonogov/patroni-docker:v4.0.4-pg17.3
+    container_name: patroni2
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    environment:
+      PATRONI_NAME: patroni2
+      PATRONI_SCOPE: zbx-cluster
+      PATRONI_ETCD_HOSTS: etcd1:2379,etcd2:2379,etcd3:2379
+      REPLICATION_NAME: replicator
+      REPLICATION_PASS: replpass
+      SU_NAME: postgres
+      SU_PASS: supass
+      POSTGRES_APP_ROLE_PASS: appass
+      PATRONI_API_CONNECT_PORT: 8008
+    volumes:
+      - patroni2_data:/var/lib/postgresql/patroni/main
+      - ./patroni/patroni.yml:/patroni.yml:ro
+      - ./patroni/entrypoint.sh:/entrypoint.sh:ro
+    networks:
+      zbx-net:
+        ipv4_address: 172.20.0.15
+    depends_on:
+      - etcd1
+      - etcd2
+      - etcd3
+    restart: unless-stopped
+
+  # ====== HAProxy for Patroni + Zabbix ======
+  haproxy:
+    image: haproxy:alpine
+    container_name: zbx-haproxy
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    # ports:
+    #   - "5432:5432"
+    #   - "10053:10053"
+    network_mode: "host"
+      # zbx-net:
+      #   ipv4_address: 172.20.0.30
+    depends_on:
+      - patroni1
+      - patroni2
+    restart: unless-stopped
+
+  # ====== Zabbix Server ======
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:7.4.5-ubuntu
+    container_name: zbx-server
+    environment:
+      DB_SERVER_HOST: 192.168.20.10
+      DB_SERVER_PORT: "5432"
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbixpass
+      POSTGRES_DB: zabbix
+    ports:
+      - "10051:10051"
+    volumes:
+      - ./server/zabbix_server.conf:/etc/zabbix/zabbix_server.conf:ro
+    networks:
+      zbx-net:
+        ipv4_address: 172.20.0.21
+    depends_on:
+      - haproxy
+    restart: unless-stopped
+
+  # ====== Zabbix Web ======
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:ubuntu-7.4-latest
+    container_name: zbx-web
+    environment:
+      DB_SERVER_HOST: 192.168.20.10
+      DB_SERVER_PORT: "5432" 
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbixpass
+      PHP_TZ: Europe/Moscow
+      LANG: ru_RU.UTF-8
+      LC_ALL: ru_RU.UTF-8
+    ports:
+      - "80:8080"
+    networks:
+      zbx-net:
+        ipv4_address: 172.20.0.22
+    depends_on:
+      - zabbix-server
+    restart: unless-stopped
+
+  # ====== Zabbix Agent ======
+  zabbix-agent:
+    build: ./zabbix-agent
+    container_name: zbx-agent
+    environment:
+      ZBX_SERVER_HOST: 192.168.20.10,172.20.0.21
+      ZBX_SERVER_ACTIVE: 192.168.20.10:10053
+      ZBX_HOSTNAME: zbx-agent
+      TZ: Europe/Moscow
+    ports:
+      - "10050:10050"
+    volumes:
+      - /vagrant/syslog/logs:/var/log/rsyslog:ro
+    networks:
+      zbx-net:
+        ipv4_address: 172.20.0.23
+    restart: unless-stopped
+
+  # ====== Zabbix-proxy ======
+  zabbix-proxy:
+    image: zabbix/zabbix-proxy-sqlite3:7.4-ubuntu-latest
+    container_name: zbx-proxy
+    environment:
+      ZBX_HOSTNAME: proxy1
+      ZBX_SERVER_HOST: 192.168.20.10
+      ZBX_SERVER_PORT: "10051"
+      ZBX_PROXYMODE: 0                     
+      TZ: Europe/Moscow
+    ports:
+      - "10054:10051"
+    networks: 
+      zbx-net:
+        ipv4_address: 172.20.0.24
+    restart: unless-stopped
+
+  # ====== Grafana ======
+  grafana:
+    image: grafana/grafana:12.1-ubuntu
+    container_name: grafana
+    environment:
+      - TZ=Europe/Moscow
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      zbx-net:
+        ipv4_address: 172.20.0.41
+    restart: unless-stopped
+
+  # ======= Rsyslog-server ======
+  rsyslog-server:
+    build: ../syslog
+    container_name: rsyslog-server
+    ports:
+      - "10514:10514/tcp"
+      - "10514:10514/udp"
+    volumes:
+      - ./logs:/var/log/rsyslog
+    restart: unless-stopped
+
+volumes:
+  patroni1_data:
+  patroni2_data:
+  grafana_data:
+
+networks:
+  zbx-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24

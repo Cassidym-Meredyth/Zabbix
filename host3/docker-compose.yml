@@ -1,0 +1,52 @@
+services:
+  zabbix-agent:
+    build: ./zabbix-agent
+    container_name: zbx-agent
+    ports:
+      - "10050:10050"
+    environment:
+      ZBX_SERVER_HOST: 192.168.20.10
+      ZBX_SERVER_ACTIVE: 192.168.20.10:10053
+      ZBX_HOSTNAME: host3
+      TZ: Europe/Moscow
+    volumes:
+      - /vagrant/host3/logs:/var/log/nginx:ro
+      - /var/log/syslog:/var/log/syslog:ro
+    networks: 
+      zbx-net:
+        ipv4_address: 172.20.0.13
+    restart: unless-stopped
+
+  app1:
+    image: zabbix/zabbix-agent2:7.4-ubuntu-latest
+    container_name: app1
+    ports:
+      - "10052:10050"
+    environment:
+      ZBX_SERVER_HOST: 192.168.20.10,192.168.20.20
+      ZBX_SERVER_ACTIVE: 192.168.20.20:10054;192.168.20.20:10054
+      ZBX_HOSTNAME: app1
+      TZ: Europe/Moscow
+    networks: 
+      zbx-net:
+        ipv4_address: 172.20.0.14
+    restart: unless-stopped
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - /vagrant/host3/logs:/var/log/nginx/
+    networks: 
+      zbx-net:
+        ipv4_address: 172.20.0.15
+    restart: unless-stopped
+
+networks:
+  zbx-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24

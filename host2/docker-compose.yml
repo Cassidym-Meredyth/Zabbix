@@ -1,0 +1,59 @@
+services:
+  zabbix-server-2:
+    image: zabbix/zabbix-server-pgsql:7.4.5-ubuntu
+    container_name: zbx-server-2
+    environment:
+      DB_SERVER_HOST: 192.168.20.10
+      DB_SERVER_PORT: "5432"
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbixpass
+      POSTGRES_DB: zabbix
+    ports:
+      - "10051:10051"
+    volumes:
+      - ./zabbix-backup/zabbix_server.conf:/etc/zabbix/zabbix_server.conf:ro
+    networks: 
+      zbx-net:
+        ipv4_address: 172.20.0.11
+    restart: unless-stopped
+
+
+  zabbix-agent:
+    build: ./zabbix-agent
+    container_name: zbx-agent
+    ports:
+      - "10050:10050"
+    environment:
+      ZBX_SERVER_HOST: 192.168.20.10,172.20.0.1,172.20.0.11
+      ZBX_SERVER_ACTIVE: 192.168.20.10:10053
+      ZBX_HOSTNAME: host2
+      TZ: Europe/Moscow
+    volumes:
+      - /var/log/syslog:/var/log/syslog:ro
+    networks: 
+      zbx-net:
+        ipv4_address: 172.20.0.12
+    restart: unless-stopped
+
+  zabbix-proxy:
+    image: zabbix/zabbix-proxy-sqlite3:7.4-ubuntu-latest
+    container_name: zbx-proxy
+    environment:
+      ZBX_HOSTNAME: proxy2
+      ZBX_SERVER_HOST: 192.168.20.20
+      ZBX_SERVER_PORT: "10051"
+      ZBX_PROXYMODE: 0                     
+      TZ: Europe/Moscow
+    ports:
+      - "10054:10051"
+    networks: 
+      zbx-net:
+        ipv4_address: 172.20.0.13
+    restart: unless-stopped
+
+networks:
+  zbx-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
