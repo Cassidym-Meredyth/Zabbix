@@ -6,7 +6,7 @@ docker volume create zabbix_grafana_data
 docker volume create zabbix_patroni1_data
 docker volume create zabbix_patroni2_data
 
-cd /vagrant/monitor/zabbix/zabbix-zabbix || {
+cd /vagrant/monitor/zabbix/zabbix-data || {
   echo "WARN: /vagrant/monitor/zabbix/zabbix-zabbix not found"
   exit 0
 }
