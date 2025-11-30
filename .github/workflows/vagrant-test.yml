@@ -19,12 +19,22 @@ jobs:
             Write-Host "vagrant destroy failed, ignore"
           }
 
-      - name: Vagrant up (test)
+      - name: Vagrant up (vm1-test)
         run: |
           $ErrorActionPreference = "Stop"
 
           vagrant up vm1-test --no-color --provision
+      
+      - name: Vagrant up (vm2-test)
+        run: |
+          $ErrorActionPreference = "Stop"
+
           vagrant up vm2-test --no-color --provision
+
+      - name: Vagrant up (vm3-test)
+        run: |
+          $ErrorActionPreference = "Stop"
+
           vagrant up vm3-test --no-color --provision
 
       - name: Health check
