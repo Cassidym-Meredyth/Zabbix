@@ -1,0 +1,23 @@
+name: Deploy Zabbix infra
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Vagrant up
+        run: |
+          $ErrorActionPreference = "Stop"
+          vagrant up vm1-test --no-color --provision
+          vagrant up vm2-test --no-color --provision
+          vagrant up vm3-test --no-color --provision
+
+      - name: Health check
+        run: |
+          vagrant ssh vm1-test -c "docker ps"

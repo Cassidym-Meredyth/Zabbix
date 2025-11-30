@@ -25,10 +25,6 @@ jobs:
 
           vagrant up vm1-test --no-color --provision
       
-      - name: Deploy Zabbix stack on vm1
-        run: |
-          vagrant ssh vm1-test -c "bash /vagrant/monitor/zabbix/deploy_zabbix.sh"
-      
       - name: Vagrant up (vm2-test)
         run: |
           $ErrorActionPreference = "Stop"
