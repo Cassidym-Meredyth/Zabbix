@@ -2,6 +2,7 @@
 # SSH: доступ по ключам включен, логин Vagrant с базовым ключем. Парольный вход в sshd запрещено провижнингом
 # ОС - Ubuntu 22.04 (ubuntu\jammy64)
 
+
 Vagrant.configure("2") do |config|
     config.vm.box = "ubuntu/jammy64"
     config.vm.boot_timeout = 600
