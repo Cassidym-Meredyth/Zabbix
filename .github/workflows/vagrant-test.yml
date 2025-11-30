@@ -25,3 +25,4 @@ jobs:
         shell: bash
         run: |
           vagrant ssh vm1 -c "docker ps"
+
