@@ -36,3 +36,4 @@ jobs:
       - name: Health check
         run: |
           vagrant ssh vm1-test -c "docker ps"
+
