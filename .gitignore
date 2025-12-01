@@ -2,4 +2,7 @@ actions-ruuner
 monitor/zabbix/zabbix-data/
 .vagrant
 monitor/zabbix/zabbix-data
+.ssh*
+host3/logs
+monitor/zabbix/logs
 

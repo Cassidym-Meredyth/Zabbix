@@ -1,6 +1,6 @@
 #!/bin/bash
 
-URL="http://192.168.20.30/fail500"
+URL="http://192.168.10.30/fail500"
 
 
 code=$(curl -s -o /dev/null -w "%{http_code}\n" "$URL")

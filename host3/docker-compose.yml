@@ -5,8 +5,8 @@ services:
     ports:
       - "10050:10050"
     environment:
-      ZBX_SERVER_HOST: 192.168.20.10
-      ZBX_SERVER_ACTIVE: 192.168.20.10:10053
+      ZBX_SERVER_HOST: 192.168.10.10
+      ZBX_SERVER_ACTIVE: 192.168.10.10:10053
       ZBX_HOSTNAME: host3
       TZ: Europe/Moscow
     volumes:
@@ -23,8 +23,8 @@ services:
     ports:
       - "10052:10050"
     environment:
-      ZBX_SERVER_HOST: 192.168.20.10,192.168.20.20
-      ZBX_SERVER_ACTIVE: 192.168.20.20:10054;192.168.20.20:10054
+      ZBX_SERVER_HOST: 192.168.10.10,192.168.10.20
+      ZBX_SERVER_ACTIVE: 192.168.10.20:10054;192.168.10.20:10054
       ZBX_HOSTNAME: app1
       TZ: Europe/Moscow
     networks: 

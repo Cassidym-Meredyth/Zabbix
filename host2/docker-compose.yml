@@ -3,7 +3,7 @@ services:
     image: zabbix/zabbix-server-pgsql:7.4.5-ubuntu
     container_name: zbx-server-2
     environment:
-      DB_SERVER_HOST: 192.168.20.10
+      DB_SERVER_HOST: 192.168.10.10
       DB_SERVER_PORT: "5432"
       POSTGRES_USER: zabbix
       POSTGRES_PASSWORD: zabbixpass
@@ -24,8 +24,8 @@ services:
     ports:
       - "10050:10050"
     environment:
-      ZBX_SERVER_HOST: 192.168.20.10,172.20.0.1,172.20.0.11
-      ZBX_SERVER_ACTIVE: 192.168.20.10:10053
+      ZBX_SERVER_HOST: 192.168.10.10,172.20.0.1,172.20.0.11
+      ZBX_SERVER_ACTIVE: 192.168.10.10:10053
       ZBX_HOSTNAME: host2
       TZ: Europe/Moscow
     volumes:
@@ -40,7 +40,7 @@ services:
     container_name: zbx-proxy
     environment:
       ZBX_HOSTNAME: proxy2
-      ZBX_SERVER_HOST: 192.168.20.20
+      ZBX_SERVER_HOST: 192.168.10.20
       ZBX_SERVER_PORT: "10051"
       ZBX_PROXYMODE: 0                     
       TZ: Europe/Moscow

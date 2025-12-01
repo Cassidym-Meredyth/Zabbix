@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	nginxURL = "http://192.168.20.30/"
+	nginxURL = "http://192.168.10.30/"
 	interval = 30 * time.Second
 )
 

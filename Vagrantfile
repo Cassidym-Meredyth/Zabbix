@@ -1,4 +1,4 @@
-# Сеть: приватная 192.168.20.0/24, статические IP
+# Сеть: приватная 192.168.10.0/24, статические IP
 # SSH: доступ по ключам включен, логин Vagrant с базовым ключем. Парольный вход в sshd запрещено провижнингом
 # ОС - Ubuntu 22.04 (ubuntu\jammy64)
 
@@ -43,7 +43,7 @@ Vagrant.configure("2") do |config|
     # VM1 (Docker/Compose + Zabbix)
     config.vm.define "vm1-test" do |vm1|
         vm1.vm.hostname = "monitoring"
-        vm1.vm.network "private_network", ip: "192.168.20.10"
+        vm1.vm.network "private_network", ip: "192.168.10.10"
         vm1.vm.provider "virtualbox" do |vb|
             vb.name = "VM10-monitor"
             vb.memory = 4096
@@ -84,9 +84,11 @@ Vagrant.configure("2") do |config|
             echo "=== /etc/hosts для имён ==="
             sudo bash -c 'cat >/etc/hosts <<EOF
             127.0.0.1 localhost
-            192.168.20.10 monitor
-            192.168.20.20 host2
-            192.168.20.30 host3'
+            192.168.10.10 monitor
+            192.168.10.20 host2
+            192.168.10.30 host3'
+
+            hostnamectl set-hostname monitor
 
             echo "=== Проверка SSH на VM1 ==="
             ss -tulpen | grep ":22" || true
@@ -111,25 +113,25 @@ Vagrant.configure("2") do |config|
             cron_line="*/1 * * * * sh /vagrant/monitor/zabbix/curl_fail500.sh >/dev/null 2>&1"
             ( crontab -l -u vagrant 2>/dev/null | grep -Fv "$cron_line"; echo "$cron_line" ) | crontab -u vagrant -
 
-            # # Переходим в нужную директорию и создаем volume для контейнеров
-            # cd /vagrant/monitor/zabbix/zabbix-data
+            # Переходим в нужную директорию и создаем volume для контейнеров
+            cd /vagrant/monitor/zabbix/zabbix-data
             
-            # docker volume create zabbix_grafana_data
-            # docker volume create zabbix_patroni1_data
-            # docker volume create zabbix_patroni2_data
+            docker volume create zabbix_grafana_data
+            docker volume create zabbix_patroni1_data
+            docker volume create zabbix_patroni2_data
             
-            # # Grafana data
-            # docker run --rm -v zabbix_grafana_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_grafana_data.tar.gz"
+            # Grafana data
+            docker run --rm -v zabbix_grafana_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_grafana_data.tar.gz"
 
-            # # Patroni1 data
-            # docker run --rm -v zabbix_patroni1_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_patroni1_data.tar.gz"
+            # Patroni1 data
+            docker run --rm -v zabbix_patroni1_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_patroni1_data.tar.gz"
 
-            # # Patroni2 data
-            # docker run --rm -v zabbix_patroni2_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_patroni2_data.tar.gz"
+            # Patroni2 data
+            docker run --rm -v zabbix_patroni2_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_patroni2_data.tar.gz"
 
-            # # Запускаем контейнеры
-            # cd /vagrant/monitor/zabbix
-            # docker compose up -d --build
+            # Запускаем контейнеры
+            cd /vagrant/monitor/zabbix
+            docker compose up -d --build
 
         SHELL
     end
@@ -137,7 +139,7 @@ Vagrant.configure("2") do |config|
     # VM2 (Zabbix agent)
     config.vm.define "vm2-test" do |vm2|
         vm2.vm.hostname = "host2"
-        vm2.vm.network "private_network", ip: "192.168.20.20"
+        vm2.vm.network "private_network", ip: "192.168.10.20"
         vm2.vm.provider "virtualbox" do |vb|
             vb.name = "VM20-host2"
             vb.memory = 2048
@@ -159,6 +161,8 @@ Vagrant.configure("2") do |config|
                 sudo cp -f ~vagrant/.ssh/id_ed25519.pub /vagrant/.ssh-$(hostname).pub
             fi
 
+            hostnamectl set-hostname host2
+
             # Docker Compose
             if ! command -v docker >/dev/null 2>&1; then
                 sudo install -m 0755 -d /etc/apt/keyrings
@@ -174,13 +178,15 @@ Vagrant.configure("2") do |config|
             
             sudo bash -c 'cat >/etc/hosts <<EOF
             127.0.0.1 localhost
-            192.168.20.10 monitor
-            192.168.20.20 host2
-            192.168.20.30 host3'
+            192.168.10.10 monitor
+            192.168.10.20 host2
+            192.168.10.30 host3'
 
             # Перемещаем 99-forward-tls.conf в rsyslog.d
             cp /vagrant/host2/99-forward-tls.conf /etc/rsyslog.d/99-forward-tml.conf
 
+            cd /vagrant/host2/
+            
             # Запускаем контейнеры
             docker compose up -d --build
         SHELL
@@ -189,7 +195,7 @@ Vagrant.configure("2") do |config|
     # VM3 (Zabbix agent)
     config.vm.define "vm3-test" do |vm3|
         vm3.vm.hostname = "host3"
-        vm3.vm.network "private_network", ip: "192.168.20.30"
+        vm3.vm.network "private_network", ip: "192.168.10.30"
         vm3.vm.provider "virtualbox" do |vb|
             vb.name = "VM30-host3"
             vb.memory = 2048
@@ -211,6 +217,8 @@ Vagrant.configure("2") do |config|
                 sudo cp -f ~vagrant/.ssh/id_ed25519.pub /vagrant/.ssh-$(hostname).pub
             fi
 
+            hostnamectl set-hostname host3
+
             # Docker Compose
             if ! command -v docker >/dev/null 2>&1; then
                 sudo install -m 0755 -d /etc/apt/keyrings
@@ -226,9 +234,9 @@ Vagrant.configure("2") do |config|
 
             sudo bash -c 'cat >/etc/hosts <<EOF
             127.0.0.1 localhost
-            192.168.20.10 monitor
-            192.168.20.20 host2
-            192.168.20.30 host3'
+            192.168.10.10 monitor
+            192.168.10.20 host2
+            192.168.10.30 host3'
 
             # Перемещаем 99-forward-tls.conf в rsyslog.d
             cp /vagrant/host3/99-forward-tls.conf /etc/rsyslog.d/99-forward-tml.conf
