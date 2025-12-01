@@ -11,6 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Destroy old VMs
+        run: |
+          vagrant destroy -f
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "vagrant destroy failed, ignore"
+          }
+
       - name: Vagrant up vm1
         run: |
           $ErrorActionPreference = "Stop"
