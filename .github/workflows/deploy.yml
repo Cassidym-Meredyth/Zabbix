@@ -11,11 +11,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Vagrant up
+      - name: Vagrant up vm1
         run: |
           $ErrorActionPreference = "Stop"
           vagrant up vm1-test --no-color --provision
+
+      - name: Vagrant up vm2
+        run: |
+          $ErrorActionPreference = "Stop"
           vagrant up vm2-test --no-color --provision
+        
+      - name: Vagrant up vm3
+        run: |
+          $ErrorActionPreference = "Stop"
           vagrant up vm3-test --no-color --provision
 
       - name: Health check
