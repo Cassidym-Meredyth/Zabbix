@@ -55,7 +55,7 @@ Zabbix
 │   │   │   ├───Dockerfile
 │   │   │   └───zabbix_agent2.conf
 │   │   ├───zabbix-data
-│   │   │   └───архивы для БД и Grafana (доступно по [ссылке](https://drive.google.com/drive/folders/1D_TKpFbS8Pk2lE6WPTyNjpU-M0XXfq_6?usp=drive_link))
+│   │   │   └───архивы для БД и Grafana
 │   │   ├───zabbix-proxy
 │   │   │   ├───zabbix_proxy_server_communication.conf
 │   │   │   └───zabbix_proxy.conf
@@ -66,3 +66,5 @@ Zabbix
 ├───README.md
 └───Vagrantfile
 ```
+
+[Ссылка](https://drive.google.com/drive/folders/1D_TKpFbS8Pk2lE6WPTyNjpU-M0XXfq_6?usp=drive_link) на архив для Grafana и БД 
