@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd /vagrant/monitor/zabbix
+cd /vagrant/monitor/zabbix/testing
 
 source ./zbx_env.sh
 
 TRIGGER_NGINX_DOWN="Nginx container is down"
-TRIGGER_APP_AGENT_DOWN="Zabbix agent on app1 is down"
-TRIGGER_HOST3_AGENT_DOWN="Zabbix agent on host3 is down"
+TRIGGER_APP_AGENT_DOWN="Zabbix agent is not available app1"
+TRIGGER_HOST3_AGENT_DOWN="Zabbix agent is not available host3"
 
-DURATION=$(( (RANDOM % 30) + 30 ))   # 30-59 секунд
+DURATION=$(( (RANDOM % 61) + 120 ))   # 120–180 секунд
 MODE=$(( RANDOM % 3 ))               # 0 = nginx, 1 = app1 agent, 2 = host3 agent
 
 SERVICE=""
@@ -30,7 +30,7 @@ case "${MODE}" in
   2)
     SERVICE="zabbix-agent"
     TRIGGER_DESC="${TRIGGER_HOST3_AGENT_DOWN}"
-    DESC="Отключение zabbix-agent, собирающего метрики host3"
+    DESC="Отключение zbx-agent, собирающего метрики host3"
     ;;
 esac
 
@@ -39,10 +39,10 @@ zbx_login
 log "TEST_RANDOM_CONTAINER: mode=${MODE}, service=${SERVICE}, duration=${DURATION}s"
 log "Stopping container ${SERVICE} on host3..."
 
-docker compose -f /vagrant/host3/docker-compose.yml stop "${SERVICE}" || true
+ssh host3 "docker compose -f /vagrant/host3/docker-compose.yml stop ${SERVICE} || true"
 sleep "${DURATION}"
 log "Starting container ${SERVICE} on host3..."
-docker compose -f /vagrant/host3/docker-compose.yml start "${SERVICE}" || true
+ssh host3 "docker compose -f /vagrant/host3/docker-compose.yml start ${SERVICE} || true"
 
 STATUS="FAIL"
 DETAILS="trigger not fired; service=${SERVICE}, duration=${DURATION}s"

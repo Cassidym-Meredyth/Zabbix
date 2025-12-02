@@ -1,40 +1,27 @@
 # monitor/zabbix/zbx_env.sh
 ZBX_URL="http://192.168.10.10/api_jsonrpc.php"
-ZBX_USER="Zabbix API"
-ZBX_PASS="grafana_api"
+ZBX_TOKEN="3206553e5bba8f1e23e4ab93d26476c29514032a5738d87ec0b9633724c9f120"
 
 TIMEOUT=180
 SLEEP_INT=10
 
 log() { echo "[$(date +'%F %T')] $*"; }
 
+# Для токена логин как таковой не нужен
 zbx_login() {
-  log "Login to Zabbix API..."
-  local resp
-  resp=$(curl -s -X POST -H 'Content-Type: application/json-rpc' \
-    -d "{
-      \"jsonrpc\": \"2.0\",
-      \"method\": \"user.login\",
-      \"params\": {\"user\": \"${ZBX_USER}\", \"password\": \"${ZBX_PASS}\"},
-      \"id\": 1
-    }" "${ZBX_URL}")
-  ZBX_AUTH=$(echo "$resp" | jq -r '.result')
-  if [[ -z "${ZBX_AUTH}" || "${ZBX_AUTH}" == "null" ]]; then
-    echo "Failed to login to Zabbix API: $resp" >&2
-    exit 1
-  fi
-  log "Got auth token"
+  log "Using static API token"
 }
 
 zbx_api() {
   local method=$1
   local params=$2
-  curl -s -X POST -H 'Content-Type: application/json-rpc' \
+  curl -s -X POST \
+    -H 'Content-Type: application/json-rpc' \
+    -H "Authorization: Bearer ${ZBX_TOKEN}" \
     -d "{
       \"jsonrpc\": \"2.0\",
       \"method\": \"${method}\",
       \"params\": ${params},
-      \"auth\": \"${ZBX_AUTH}\",
       \"id\": 1
     }" "${ZBX_URL}"
 }
@@ -44,7 +31,8 @@ get_trigger_id_by_desc() {
   local resp
   resp=$(zbx_api "trigger.get" "{
     \"output\": [\"triggerid\",\"description\",\"value\"],
-    \"filter\": {\"description\": [\"${desc}\"]}
+    \"search\": {\"description\": \"${desc}\"},
+    \"searchWildcardsEnabled\": true
   }")
   echo "$resp" | jq -r '.result[0].triggerid'
 }

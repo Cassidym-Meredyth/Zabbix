@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd /vagrant/monitor/zabbix
+cd /vagrant/monitor/zabbix/testing
 
 source ./zbx_env.sh
 
@@ -13,7 +13,7 @@ zbx_login
 log "TEST_FLOOD_NGINX: start HTTP flood to fail500 for ${FLOOD_DURATION}s"
 
 # запуск флуда (генерация кода 500 и записей 'flood' в логи)
-timeout "${FLOOD_DURATION}" /vagrant/monitor/zabbix/test/curl_flood.sh "${FLOOD_DURATION}" || true
+timeout "${FLOOD_DURATION}" /vagrant/monitor/zabbix/testing/curl_flood.sh "${FLOOD_DURATION}" || true
 
 STATUS="FAIL"
 DETAILS="trigger not fired"

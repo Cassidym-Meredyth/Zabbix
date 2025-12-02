@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
     common_bootstrap = <<-SHELL
         echo "=== Обновление и установка пакетов ==="
         sudo apt-get update -y
-        sudo apt-get install -y curl gnupg lsb-release ca-certificates openssh-client rsyslog rsyslog-gnutls
+        sudo apt-get install -y curl gnupg lsb-release ca-certificates openssh-client rsyslog rsyslog-gnutls jq
 
         echo "=== Настройка ssh ==="
         sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config

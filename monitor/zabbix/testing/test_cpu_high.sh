@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd /vagrant/monitor/zabbix
-
+cd /vagrant/monitor/zabbix/testing
 source ./zbx_env.sh
 
-TRIGGER_CPU_HIGH="Hight CPU host3"
+TRIGGER_CPU_HIGH="High CPU utilization on host3"
+FLOOD_DURATION=${1:-60}   # сколько секунд долбить ping'ом
 
 zbx_login
 
-log "TEST_CPU_HIGH: start CPU load on vm3 (nginx host)"
+log "TEST_CPU_HIGH: start ICMP load to 192.168.10.30 for ${FLOOD_DURATION}s"
 
-ssh host3 "stress --cpu 1 --timeout 120"
+# ограниченный по времени ping
+timeout "${FLOOD_DURATION}" ping -i 0.002 192.168.10.30 > /dev/null || true
 
 STATUS="FAIL"
 DETAILS="trigger not fired"
