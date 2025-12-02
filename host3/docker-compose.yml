@@ -10,6 +10,7 @@ services:
       ZBX_HOSTNAME: host3
       TZ: Europe/Moscow
     volumes:
+      - /var/log/nginx/nginx-check.log:/var/log/nginx/nginx-check.log
       - /vagrant/host3/logs:/var/log/nginx:ro
       - /var/log/syslog:/var/log/syslog:ro
     networks: 

@@ -243,6 +243,8 @@ Vagrant.configure("2") do |config|
 
             # Запускаем контейнеры
             cd /vagrant/host3 && docker compose up -d --build
+            
+            /vagrant/host3/nginx/nginx-check
         SHELL
     end
 end

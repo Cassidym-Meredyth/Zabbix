@@ -1,0 +1,16 @@
+name: test1
+on: push
+
+jobs:
+  build-on-ubuntu:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: leleliu008/github-actions-vagrant@v1
+        with:
+          mem: 2048
+          box: ubuntu/jammy64
+          run: |
+            vagrant up vm1-test vm3-test
+            vagrant ssh vm1-test -c "cd /vagrant && ./monitor/zabbix/test_zabbix.sh"
