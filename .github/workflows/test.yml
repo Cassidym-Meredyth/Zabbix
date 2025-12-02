@@ -7,10 +7,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: leleliu008/github-actions-vagrant@v1
-        with:
-          mem: 2048
-          box: ubuntu/jammy64
-          run: |
+      # 1. Установить Vagrant на macOS runner
+      - name: Install Vagrant
+        run: |
+          brew install --cask vagrant
+          vagrant --version
+
+      # 2. Запуск Vagrant уже напрямую, без github-actions-vagrant
+      - name: Run Zabbix tests in VMs
+        run: |
+          cd "$GITHUB_WORKSPACE"
             vagrant up vm1-test vm3-test
             vagrant ssh vm1-test -c "cd /vagrant && ./monitor/zabbix/test_zabbix.sh"
