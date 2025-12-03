@@ -1,6 +1,6 @@
 # monitor/zabbix/zbx_env.sh
 ZBX_URL="http://192.168.10.10/api_jsonrpc.php"
-ZBX_TOKEN="b29f67bb98df71f6a8daf2d289f9abec0d194c76c3d09387556e158df8fe7bc6"
+ZBX_TOKEN="c933b982a04e6ebf195b18cc88b031f00f33081bba34cd22916f2006dbffc0e5"
 
 TIMEOUT=180
 SLEEP_INT=10

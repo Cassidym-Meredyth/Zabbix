@@ -6,7 +6,8 @@ cd /vagrant/monitor/zabbix/testing
 REPORT_FILE="test_report.md"
 
 # Заголовок таблицы
-cat > "$REPORT_FILE" <<EOF
+cat >> "$REPORT_FILE" <<EOF
+# Тестирование триггеров
 | Test Number | Description                                      | Status | Details |
 |-------------|--------------------------------------------------|--------|---------|
 EOF
