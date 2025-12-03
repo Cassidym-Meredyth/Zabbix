@@ -2,4 +2,4 @@
 |-------------|--------------------------------------------------|--------|---------|
 | 1 | Высокая нагрузка CPU | OK | trigger fired |
 | 2 | HTTP flood на /fail500 (500 errors) | OK | trigger fired after HTTP flood |
-| 3 | Отключение zabbix-agent в контейнере app1 | OK | trigger fired; service=app1, duration=164s |
+| 3 | Отключение zbx-agent, собирающего метрики host3 | OK | trigger fired; service=zabbix-agent, duration=177s |

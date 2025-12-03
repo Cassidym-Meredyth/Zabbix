@@ -113,6 +113,7 @@ services:
       - etcd1
       - etcd2
       - etcd3
+      - patroni1
     restart: unless-stopped
 
   # ====== HAProxy for Patroni + Zabbix ======

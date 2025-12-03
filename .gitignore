@@ -1,7 +1,6 @@
 actions-ruuner
-monitor/zabbix/zabbix-data/
+monitor/zabbix/zabbix-data/zabbix_patroni1_data.tar.gz
 .vagrant
-monitor/zabbix/zabbix-data
 .ssh*
 host3/logs
 monitor/zabbix/logs

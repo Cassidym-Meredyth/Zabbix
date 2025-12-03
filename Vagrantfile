@@ -115,24 +115,29 @@ Vagrant.configure("2") do |config|
 
             # Переходим в нужную директорию и создаем volume для контейнеров
             cd /vagrant/monitor/zabbix/zabbix-data
-            
-            docker volume create zabbix_grafana_data
+
+            echo "=== Создание Volume для БД ==="
             docker volume create zabbix_patroni1_data
             docker volume create zabbix_patroni2_data
-            
-            # Grafana data
-            docker run --rm -v zabbix_grafana_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_grafana_data.tar.gz"
 
-            # Patroni1 data
-            docker run --rm -v zabbix_patroni1_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_patroni1_data.tar.gz"
+            ./initial_db.sh
 
-            # Patroni2 data
-            docker run --rm -v zabbix_patroni2_data:/data -v "$(pwd)":/backup busybox sh -c "cd /data && tar xzf /backup/zabbix_patroni2_data.tar.gz"
+            echo "=== Выдача прав для volume БД ==="
+            chmod 700 /var/lib/docker/volumes/zabbix_patroni1_data/_data
+            chown -R 999:999 /var/lib/docker/volumes/zabbix_patroni1_data/_data
+
+            mkdir -p /var/lib/docker/volumes/zabbix_patroni2_data/_data
+            chmod 700 /var/lib/docker/volumes/zabbix_patroni2_data/_data
+            chown -R 999:999 /var/lib/docker/volumes/zabbix_patroni2_data/_data
 
             # Запускаем контейнеры
             cd /vagrant/monitor/zabbix
-            docker compose up -d --build
 
+            docker compose up -d --build
+            
+            echo "=== Развертка завершена ==="
+            echo "=== Перезагрузка... ==="
+            reboot
         SHELL
     end
 
@@ -187,8 +192,13 @@ Vagrant.configure("2") do |config|
 
             cd /vagrant/host2/
             
+            echo "== Запуск контейнеров ==="
             # Запускаем контейнеры
             docker compose up -d --build
+
+            echo "=== Развертка завершена ==="
+            echo "=== Перезагрузка... ==="
+            reboot
         SHELL
     end
 
@@ -241,10 +251,17 @@ Vagrant.configure("2") do |config|
             # Перемещаем 99-forward-tls.conf в rsyslog.d
             cp /vagrant/host3/99-forward-tls.conf /etc/rsyslog.d/99-forward-tml.conf
 
+            mkdir -p /var/log/nginx/
+            touch /var/log/nginx/nginx-check.log
+
+            echo "=== Запуск контейнеров ==="
             # Запускаем контейнеры
             cd /vagrant/host3 && docker compose up -d --build
             
-            /vagrant/host3/nginx/nginx-check
+            /vagrant/host3/nginx/nginx-check > /dev/null 2>&1 &
+            echo "=== Развертка завершена ==="
+            echo "=== Перезагрузка... ==="
+            reboot
         SHELL
     end
 end

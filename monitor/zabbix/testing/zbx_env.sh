@@ -1,13 +1,12 @@
 # monitor/zabbix/zbx_env.sh
 ZBX_URL="http://192.168.10.10/api_jsonrpc.php"
-ZBX_TOKEN="3206553e5bba8f1e23e4ab93d26476c29514032a5738d87ec0b9633724c9f120"
+ZBX_TOKEN="b29f67bb98df71f6a8daf2d289f9abec0d194c76c3d09387556e158df8fe7bc6"
 
 TIMEOUT=180
 SLEEP_INT=10
 
 log() { echo "[$(date +'%F %T')] $*"; }
 
-# Для токена логин как таковой не нужен
 zbx_login() {
   log "Using static API token"
 }

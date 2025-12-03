@@ -5,7 +5,7 @@ cd /vagrant/monitor/zabbix/testing
 source ./zbx_env.sh
 
 TRIGGER_CPU_HIGH="High CPU utilization on host3"
-FLOOD_DURATION=${1:-60}   # сколько секунд долбить ping'ом
+FLOOD_DURATION=${1:-60}
 
 zbx_login
 

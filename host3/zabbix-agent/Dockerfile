@@ -6,7 +6,7 @@ RUN apt-get update && apt-get -y \
     install \
     curl \
     wget \
-    fping
+    fping \
     net-tools \
     && rm -rf /var/lib/apt/lists/*
 
